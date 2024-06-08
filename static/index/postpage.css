@@ -1,0 +1,85 @@
+/* Genel ayarlar */
+body {
+    background-color: #292b35; /* Siyah arka plan */
+    color: #20B2AA; /* Yazı rengi */
+    font-family: 'Montserrat', sans-serif; /* Montserrat fontu */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.container {
+    background-color: #333; /* Koyu gri arka plan */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(63, 63, 63, 0.5);
+    width: 80%;
+    max-width: 800px;
+    margin: 20px;
+    text-align: center;
+}
+
+h1, h2 {
+    color: #20B2AA; /* Başlık rengi */
+}
+
+form {
+    margin: 20px 0;
+}
+
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #20B2AA;
+    border-radius: 5px;
+    background-color: #444; /* Koyu gri input arka planı */
+    color: #20B2AA;
+    font-family: 'Montserrat', sans-serif;
+    margin-bottom: 10px;
+    resize: vertical;
+}
+
+textarea::placeholder {
+    color: #20B2AA; /* Placeholder rengi */
+    opacity: 0.7;
+}
+
+input[type="submit"] {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #20B2AA;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    font-family: 'Montserrat', sans-serif;
+}
+
+input[type="submit"]:hover {
+    background-color: #17a4a1;
+}
+
+.comment-section {
+    text-align: left;
+    margin-top: 20px;
+}
+
+.comment {
+    background-color: #444;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.comment p {
+    margin: 0;
+}
+
+.no-comments {
+    color: #888;
+    font-style: italic;
+}

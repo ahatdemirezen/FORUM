@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Posts</title>
+    <link rel="stylesheet" href="/static/index/index.css">
+</head>
+<body>
+    <form action="/" method="POST">
+        <input id="commentbutton" type="submit" value="Return Main Page">
+    </form>
+    <div class="header">
+        <h1>My Posts</h1>
+    </div>
+    <div class="container">
+        <h2>Your Posts</h2>
+        <hr>
+        {{if .}}
+        {{range .}}
+        <div class="post">
+            <form action="/post" method="GET">
+                <input type="hidden" name="id" value="{{.ID}}">
+                <button type="submit" class="post-link">
+                    <p class="post-title">{{.UserName}}: {{.Title}} Votes: {{.LikeCount}}</p>
+                </button>
+            </form>
+            <form action="/deletepost" method="post">
+                <input type="hidden" name="id" value="{{.ID}}">
+                <input id="commentbutton" type="submit" value="Delete Post">
+            </form>
+        </div>
+        {{end}}
+        {{else}}
+        <p>No created posts found.</p>
+        {{end}}
+    </div>
+</body>
+</html>

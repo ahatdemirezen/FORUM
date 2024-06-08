@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forum Ware</title>
+    <link rel="stylesheet" href="/static/index/index.css">
+    <style>
+        .profile-menu {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: inline-block;
+        }
+
+        .profile-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .profile-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .profile-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .profile-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .profile-menu:hover .profile-content {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Forum Ware</h1>
+    </div>
+    <div class="navbar">
+        <form action="/createpost" method="GET">
+            <button>Create Post</button>
+        </form>
+        <div class="profile-menu">
+            <button class="profile-button">Profile</button>
+            <div class="profile-content">
+                <a href="/myposts">Gönderilerim</a>
+                <a href="/likedposts">Beğendiklerim</a>
+                <a href="/mycomments">Yorumlarım</a>
+                <form action="/deleteaccount" method="POST">
+                    <input type="hidden" name="username" value="example_user"> <!-- Örnek: Kullanıcı adını buraya ekleyin -->
+                    <button onclick="return confirm('Hesabınızı silmek istediğinize emin misiniz?')">Hesabı Sil</button>
+                </form>
+                <form action="/logout" method="POST">
+                    <button>Logout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <h2>Forum Posts</h2>
+        <hr>
+        {{range .}}
+        <div class="post">
+            <form action="/post" method="GET">
+                <input type="hidden" name="id" value="{{.ID}}">
+                <button type="submit" class="post-link">
+                    <p class="post-title">{{.UserName}}: {{.Title}} Votes: {{.LikeCount}}</p>
+                </button>
+            </form>
+        </div>
+        {{end}}
+    </div>
+</body>
+</html>

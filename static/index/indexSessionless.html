@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forum Ware</title>
+    <link rel="stylesheet" href="/static/index/index.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Forum Ware</h1>
+    </div>
+    <div class="navbar">
+        <form action="/login" method="POST">
+            <button>Login</button>
+        </form>
+        <form action="/register" method="GET">
+            <button>Register</button>
+        </form>
+    </div>
+    <div class="container">
+        <h2>Forum Posts</h2>
+        <hr>
+        {{range .}}
+        <div class="post">
+            <form action="/post" method="GET">
+                <input type="hidden" name="id" value="{{.ID}}">
+                <button type="submit" class="post-link">
+                    <p class="post-title">{{.UserName}}: {{.Title}} Votes: {{.LikeCount}}</p>
+                </button>
+            </form>
+        </div>
+        {{end}}
+    </div>
+</body>
+</html>

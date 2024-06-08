@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Post</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/index/createpost.css">
+</head>
+<body>
+    <div class="container">
+        <img src="/static/icons/x.svg" class="close-button" onclick="window.location.href='/'" alt="Close">
+        <h1>Create a New Post</h1>
+        <form action="/createpost" method="post" enctype="multipart/form-data">
+            <textarea id="title" name="title" rows="1" placeholder="Write your Title..."></textarea>
+            <textarea id="content" name="content" rows="3" placeholder="Write your post content..."></textarea>
+            <br>
+            <label for="photo">Upload Photo:</label>
+            <input type="file" id="photo" name="photo">
+            <br>
+            <button type="submit">
+                <img src="/static/icons/send.svg" alt="Send">
+            </button>
+        </form>
+    </div>
+</body>
+</html>

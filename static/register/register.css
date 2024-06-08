@@ -1,0 +1,161 @@
+body {
+    background-color: #292b35; /* Siyah arka plan */
+    color: #20B2AA; /* Yazı rengi */
+    font-family: 'Montserrat', sans-serif; /* Montserrat fontu */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+.register-box {
+    background-color: #ffffff; /* Beyaz arka plan */
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(63, 63, 63, 0.5);
+    width: 300px;
+    text-align: center;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.close-icon {
+    width: 20px;
+    height: 20px;
+}
+
+h1 {
+    color: #20B2AA; /* Başlık rengi */
+    margin-bottom: 20px;
+}
+
+.social-btn {
+    background-color: #ffffff;
+    color: #20B2AA;
+    border: 1px solid #20B2AA;
+    padding: 10px 20px;
+    margin: 5px 0;
+    width: 100%;
+    border-radius: 5px;
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none; /* Link alt çizgisi kaldırma */
+}
+
+.social-btn:hover {
+    background-color: #5a5a5a;
+}
+
+.social-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #20B2AA;
+}
+
+.divider::before {
+    margin-right: .25em;
+}
+
+.divider::after {
+    margin-left: .25em;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.input-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+input[type="email"],
+input[type="text"],
+input[type="password"] {
+    background-color: #ffffff; /* Input arka plan rengi */
+    color: #20B2AA; /* Input yazı rengi */
+    border: 1px solid #20B2AA; /* Çerçeve rengi */
+    padding: 10px;
+    width: calc(100% - 40px); /* İkon ve padding için alan bırakma */
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+}
+
+input::placeholder {
+    color: #20B2AA; /* Placeholder yazı rengi */
+    opacity: 0.7; /* Placeholder opaklığı */
+}
+
+.register-btn {
+    background-color: #20B2AA; /* Buton arka plan rengi */
+    color: #ffffff; /* Buton yazı rengi */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.register-btn:hover {
+    background-color: #17a4a1; /* Buton hover rengi */
+}
+
+.error {
+    color: #20B2AA; /* Hata mesajı rengi */
+    text-align: center;
+    margin-top: 10px;
+}
+
+.footer {
+    margin-top: 20px;
+}
+
+.footer a {
+    color: #20B2AA;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+#p1 {
+    color: #000000;
+}
