@@ -65,6 +65,8 @@ func main() {
 
 	http.HandleFunc("/deleteaccount", DeleteAccountHandler)
 
+	http.HandleFunc("/search", SearchedPosts)
+
 	fmt.Printf("Server is running on %s", port)
 	err := http.ListenAndServe(port, nil)
 	if err != nil {
@@ -126,6 +128,7 @@ type Post struct {
 type Reply struct {
 	ID        int
 	CommentID int
+	UserName  string
 	UserID    int
 	Reply     string
 	CreatedAt time.Time
@@ -253,7 +256,7 @@ func PostPageHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "ERROR: Database scan error", http.StatusBadRequest)
 				return
 			}
-			replyRows, err := db.Query("SELECT ID, CommentID, UserID, Reply, CreatedAt FROM REPLIES WHERE CommentID = ?", comment.ID)
+			replyRows, err := db.Query("SELECT ID, CommentID, UserName, UserID, Reply, CreatedAt FROM REPLIES WHERE CommentID = ?", comment.ID)
 			if err != nil {
 				http.Error(w, "ERROR: Database scan error", http.StatusBadRequest)
 				return
@@ -263,7 +266,7 @@ func PostPageHandler(w http.ResponseWriter, r *http.Request) {
 			var replies []Reply
 			for replyRows.Next() {
 				var reply Reply
-				err := replyRows.Scan(&reply.ID, &reply.CommentID, &reply.UserID, &reply.Reply, &reply.CreatedAt)
+				err := replyRows.Scan(&reply.ID, &reply.CommentID, &reply.UserName, &reply.UserID, &reply.Reply, &reply.CreatedAt)
 				if err != nil {
 					http.Error(w, "ERROR: Database scan error", http.StatusBadRequest)
 					return
@@ -344,7 +347,7 @@ func AddReplyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authenticated, userID, _ := IsAuthenticated(r)
+	authenticated, userID, userName := IsAuthenticated(r)
 	if !authenticated {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -383,7 +386,7 @@ func AddReplyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	_, err := db.Exec(`INSERT INTO REPLIES (CommentID, UserID, Reply, PostID) VALUES (?, ?, ?, ?)`, commentIDInt, userID, reply, postIDInt)
+	_, err := db.Exec(`INSERT INTO REPLIES (CommentID, UserID, UserName, Reply, PostID) VALUES (?, ?, ?, ?, ?)`, commentIDInt, userID, userName, reply, postIDInt)
 	if err != nil {
 		http.Error(w, "ERROR: Reply did not add to the database", http.StatusBadRequest)
 		return
@@ -496,6 +499,7 @@ func init() {
         ID INTEGER PRIMARY KEY AUTOINCREMENT,
         CommentID INTEGER,
 		PostID INTEGER,
+		UserName TEXT,
         UserID INTEGER,
         Reply TEXT,
 		CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -512,6 +516,26 @@ func init() {
 		Liked BOOLEAN,
 		Disliked BOOLEAN,
 		UNIQUE(UserID, PostID, IsComment)
+	);
+	CREATE TABLE IF NOT EXISTS CATEGORIES (
+        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        USERID INTEGER,
+        PostID INTEGER,
+        GO INTEGER DEFAULT 0 CHECK(GO IN (0, 1)),
+        HTML INTEGER DEFAULT 0 CHECK(HTML IN (0, 1)),
+        CSS INTEGER DEFAULT 0 CHECK(CSS IN (0, 1)),
+        PHP INTEGER DEFAULT 0 CHECK(PHP IN (0, 1)),
+        PYTHON INTEGER DEFAULT 0 CHECK(PYTHON IN (0, 1)),
+        C INTEGER DEFAULT 0 CHECK(C IN (0, 1)),
+        "C++" INTEGER DEFAULT 0 CHECK("C++" IN (0, 1)),
+        "C#" INTEGER DEFAULT 0 CHECK("C#" IN (0, 1)),
+        JS INTEGER DEFAULT 0 CHECK(JS IN (0, 1)),
+        ASSEMBLY INTEGER DEFAULT 0 CHECK(ASSEMBLY IN (0, 1)),
+        REACT INTEGER DEFAULT 0 CHECK(REACT IN (0, 1)),
+        FLUTTER INTEGER DEFAULT 0 CHECK(FLUTTER IN (0, 1)),
+        RUST INTEGER DEFAULT 0 CHECK(RUST IN (0, 1)),
+        FOREIGN KEY(PostID) REFERENCES POSTS(ID),
+        FOREIGN KEY(USERID) REFERENCES USERS(ID)
 	);`
 
 	_, err = db.Exec(createTables)
@@ -971,8 +995,33 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		categoryValues := getCategoryValues(r)
+		_, err = db.Exec(`INSERT INTO CATEGORIES (USERID, PostID, GO, HTML, CSS, PHP, PYTHON, C, "C++", "C#", JS, ASSEMBLY, REACT, FLUTTER, RUST) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			userId, postID, categoryValues["go"], categoryValues["html"], categoryValues["css"], categoryValues["php"],
+			categoryValues["python"], categoryValues["c"], categoryValues["cpp"], categoryValues["csharp"],
+			categoryValues["js"], categoryValues["assembly"], categoryValues["react"], categoryValues["flutter"], categoryValues["rust"])
+		if err != nil {
+			http.Error(w, "ERROR: Could not add categories to the database", http.StatusBadRequest)
+			return
+		}
+
 		http.Redirect(w, r, fmt.Sprintf("/post?id=%d", postID), http.StatusSeeOther)
 	}
+}
+
+func getCategoryValues(r *http.Request) map[string]int {
+	categories := []string{"go", "html", "css", "php", "python", "c", "cpp", "csharp", "js", "assembly", "react", "flutter", "rust"}
+	categoryValues := make(map[string]int)
+
+	for _, category := range categories {
+		if r.FormValue(category) == "true" {
+			categoryValues[category] = 1
+		} else {
+			categoryValues[category] = 0
+		}
+	}
+	return categoryValues
 }
 
 func IsAuthenticated(r *http.Request) (bool, int, string) {
@@ -1403,68 +1452,227 @@ func LikedPostsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteAccountHandler(w http.ResponseWriter, r *http.Request) {
-	authenticated, userID, _ := IsAuthenticated(r)
-	if !authenticated {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
+	switch r.Method {
+	case "GET":
+		authenticated, _, _ := IsAuthenticated(r)
+		if !authenticated {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
 
-	db, err := sql.Open("sqlite3", "./forum.db")
-	if err != nil {
-		http.Error(w, "Database error", http.StatusInternalServerError)
+		tmpl, err := template.ParseFiles("static/index/deleteaccount.html")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		tmpl.Execute(w, nil)
+	case "POST":
+		authenticated, userID, _ := IsAuthenticated(r)
+		if !authenticated {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+
+		db, err := sql.Open("sqlite3", "./forum.db")
+		if err != nil {
+			http.Error(w, "Database error", http.StatusInternalServerError)
+			return
+		}
+		defer db.Close()
+
+		password := r.FormValue("password")
+
+		var storedPassword string
+
+		err = db.QueryRow("SELECT Password FROM USERS WHERE ID = ?", userID).Scan(&storedPassword)
+		if err != nil {
+			http.Error(w, "ERROR: Invalid query", http.StatusBadRequest)
+			return
+		}
+		err = bcrypt.CompareHashAndPassword([]byte(storedPassword), []byte(password))
+		if err != nil {
+			http.Error(w, "ERROR: Invalid password", http.StatusBadRequest)
+			return
+		}
+
+		// Kullanıcının yaptığı tüm yorumları ve beğenileri sil
+		_, err = db.Exec("DELETE FROM USERLIKES WHERE UserID = ?", userID)
+		if err != nil {
+			http.Error(w, "Database error", http.StatusInternalServerError)
+			return
+		}
+
+		_, err = db.Exec("DELETE FROM REPLIES WHERE UserID = ?", userID)
+		if err != nil {
+			http.Error(w, "Database error", http.StatusInternalServerError)
+			return
+		}
+
+		_, err = db.Exec("DELETE FROM COMMENTS WHERE UserID = ?", userID)
+		if err != nil {
+			http.Error(w, "Database error", http.StatusInternalServerError)
+			return
+		}
+
+		// Kullanıcının oluşturduğu tüm gönderileri sil
+		_, err = db.Exec("DELETE FROM POSTS WHERE UserID = ?", userID)
+		if err != nil {
+			http.Error(w, "Database error", http.StatusInternalServerError)
+			return
+		}
+
+		// Kullanıcıyı veritabanından sil
+		_, err = db.Exec("DELETE FROM USERS WHERE ID = ?", userID)
+		if err != nil {
+			http.Error(w, "Database error", http.StatusInternalServerError)
+			return
+		}
+
+		// Oturumu sonlandır
+		_, err = db.Exec("UPDATE USERS SET session_token = '' WHERE ID = ?", userID)
+		if err != nil {
+			http.Error(w, "Database error", http.StatusInternalServerError)
+			return
+		}
+
+		// Kullanıcının tarayıcıdaki oturum çerezini kaldır
+		expiredCookie := &http.Cookie{
+			Name:     "session_token",
+			Value:    "",
+			Expires:  time.Unix(0, 0),
+			HttpOnly: true,
+		}
+		http.SetCookie(w, expiredCookie)
+
+		// Kullanıcıyı yönlendir
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
+}
+
+func SearchedPosts(w http.ResponseWriter, r *http.Request) {
+	categorySelection := r.FormValue("category")
+	search := r.FormValue("search")
+
+	db, errDb := sql.Open("sqlite3", "./forum.db")
+	if errDb != nil {
+		http.Error(w, "ERROR: Database cannot open", http.StatusBadRequest)
 		return
 	}
 	defer db.Close()
 
-	// Kullanıcının yaptığı tüm yorumları ve beğenileri sil
-	_, err = db.Exec("DELETE FROM USERLIKES WHERE UserID = ?", userID)
+	var posts []Post
+	var err error
+
+	if categorySelection == "" {
+		// Kategori seçilmemişse tüm postları çek
+		posts, err = fetchAllPosts(db)
+	} else {
+		// Kategoriye göre postları çek
+		posts, err = fetchPostsByCategory(db, categorySelection)
+	}
+
+	if search != "" {
+		posts = filterPostsBySearch(posts, search)
+	}
+
 	if err != nil {
-		http.Error(w, "Database error", http.StatusInternalServerError)
+		http.ServeFile(w, r, "static/index/index.html")
 		return
 	}
 
-	_, err = db.Exec("DELETE FROM REPLIES WHERE UserID = ?", userID)
+	tmpl, err := template.ParseFiles("static/index/searchedposts.html")
 	if err != nil {
-		http.Error(w, "Database error", http.StatusInternalServerError)
+		http.Error(w, "ERROR: Unable to parse template", http.StatusInternalServerError)
 		return
 	}
 
-	_, err = db.Exec("DELETE FROM COMMENTS WHERE UserID = ?", userID)
+	err = tmpl.Execute(w, posts)
 	if err != nil {
-		http.Error(w, "Database error", http.StatusInternalServerError)
-		return
+		http.Error(w, "ERROR: Unable to execute template", http.StatusInternalServerError)
 	}
+}
 
-	// Kullanıcının oluşturduğu tüm gönderileri sil
-	_, err = db.Exec("DELETE FROM POSTS WHERE UserID = ?", userID)
+func filterPostsBySearch(posts []Post, search string) []Post {
+	var filteredPosts []Post
+	for _, post := range posts {
+		if strings.Contains(strings.ToLower(post.Title), strings.ToLower(search)) || strings.Contains(strings.ToLower(post.Content), strings.ToLower(search)) {
+			filteredPosts = append(filteredPosts, post)
+		}
+	}
+	return filteredPosts
+}
+
+func fetchAllPosts(db *sql.DB) ([]Post, error) {
+	rows, err := db.Query("SELECT ID, Title, Content, UserName, LikeCount FROM POSTS ORDER BY PostDate DESC")
 	if err != nil {
-		http.Error(w, "Database error", http.StatusInternalServerError)
-		return
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []Post
+	for rows.Next() {
+		var post Post
+		err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.UserName, &post.LikeCount)
+		if err != nil {
+			return nil, err
+		}
+		posts = append(posts, post)
 	}
 
-	// Kullanıcıyı veritabanından sil
-	_, err = db.Exec("DELETE FROM USERS WHERE ID = ?", userID)
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return posts, nil
+}
+
+func fetchPostsByCategory(db *sql.DB, category string) ([]Post, error) {
+	queryCategory := fmt.Sprintf("SELECT PostID FROM CATEGORIES WHERE %s = 1", category)
+	rows, err := db.Query(queryCategory)
 	if err != nil {
-		http.Error(w, "Database error", http.StatusInternalServerError)
-		return
+		return nil, err
+	}
+	defer rows.Close()
+
+	var postIDs []int
+	for rows.Next() {
+		var postID int
+		err := rows.Scan(&postID)
+		if err != nil {
+			return nil, err
+		}
+		postIDs = append(postIDs, postID)
 	}
 
-	// Oturumu sonlandır
-	_, err = db.Exec("UPDATE USERS SET session_token = '' WHERE ID = ?", userID)
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	if len(postIDs) == 0 {
+		return nil, nil
+	}
+
+	query := fmt.Sprintf("SELECT ID, Title, Content, UserName, LikeCount FROM POSTS WHERE ID IN (%s) ORDER BY PostDate DESC", strings.Trim(strings.Join(strings.Fields(fmt.Sprint(postIDs)), ","), "[]"))
+
+	rows, err = db.Query(query)
 	if err != nil {
-		http.Error(w, "Database error", http.StatusInternalServerError)
-		return
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []Post
+	for rows.Next() {
+		var post Post
+		err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.UserName, &post.LikeCount)
+		if err != nil {
+			return nil, err
+		}
+		posts = append(posts, post)
 	}
 
-	// Kullanıcının tarayıcıdaki oturum çerezini kaldır
-	expiredCookie := &http.Cookie{
-		Name:     "session_token",
-		Value:    "",
-		Expires:  time.Unix(0, 0),
-		HttpOnly: true,
+	if err = rows.Err(); err != nil {
+		return nil, err
 	}
-	http.SetCookie(w, expiredCookie)
 
-	// Kullanıcıyı yönlendir
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	return posts, nil
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liked Posts</title>
+    <title>Forum Ware</title>
     <link rel="stylesheet" href="/static/index/index.css">
     <style>
         .profile-menu {
@@ -48,28 +48,47 @@
     </style>
 </head>
 <body>
-    <div class="profile-menu">
-        <button class="profile-button">Profile</button>
-        <div class="profile-content">
-            <a href="/myposts">Gönderilerim</a>
-            <a href="/likedposts">Beğendiklerim</a>
-            <a href="/mycomments">Yorumlarım</a>
-            <a href="/deleteaccount">Hesabı sil</a>
-            <form action="/logout" method="POST">
-                <button>Logout</button>
-            </form>
-        </div>
+    <div class="header">
+        <h1>Forum Ware</h1>
     </div>
     <form action="/" method="POST">
         <input id="commentbutton" type="submit" value="Return Main Page">
     </form>
-    <div class="header">
-        <h1>Liked Posts</h1>
-    </div>
+    <form action="/search" method="get">
+        <select id="category" name="category">
+            <option value="">Any thing...</option>
+            <option value="GO">Go</option>
+            <option value="HTML">Html</option>
+            <option value="CSS">Css</option>
+            <option value="PHP">Php</option>
+            <option value="PYTHON">Python</option>
+            <option value="C">C</option>
+            <option value="C++">C++</option>
+            <option value="C#">C#</option>
+            <option value="JS">Java Script</option>
+            <option value="ASSEMBLY">Assembly</option>
+            <option value="REACT">React</option>
+            <option value="FLUTTER">Flutter</option>
+            <option value="RUST">Rust</option>
+          </select>
+          <input type="search" name="search" id="search">
+        <button type="submit">Search</button>
+    </form>
+        <div class="profile-menu">
+            <button class="profile-button">Profile</button>
+            <div class="profile-content">
+                <a href="/myposts">Gönderilerim</a>
+                <a href="/likedposts">Beğendiklerim</a>
+                <a href="/mycomments">Yorumlarım</a>
+                <a href="/deleteaccount">Hesabı sil</a>
+                <form action="/logout" method="POST">
+                    <button>Logout</button>
+                </form>
+            </div>
+        </div>
     <div class="container">
-        <h2>Posts You Liked</h2>
+        <h2>Forum Posts</h2>
         <hr>
-        {{if .}}
         {{range .}}
         <div class="post">
             <form action="/post" method="GET">
@@ -79,9 +98,6 @@
                 </button>
             </form>
         </div>
-        {{end}}
-        {{else}}
-        <p>No liked posts found.</p>
         {{end}}
     </div>
 </body>

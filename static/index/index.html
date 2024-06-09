@@ -61,10 +61,7 @@
                 <a href="/myposts">Gönderilerim</a>
                 <a href="/likedposts">Beğendiklerim</a>
                 <a href="/mycomments">Yorumlarım</a>
-                <form action="/deleteaccount" method="POST">
-                    <input type="hidden" name="username" value="example_user"> <!-- Örnek: Kullanıcı adını buraya ekleyin -->
-                    <button onclick="return confirm('Hesabınızı silmek istediğinize emin misiniz?')">Hesabı Sil</button>
-                </form>
+                <a href="/deleteaccount">Hesabı sil</a>
                 <form action="/logout" method="POST">
                     <button>Logout</button>
                 </form>
@@ -73,6 +70,26 @@
     </div>
     <div class="container">
         <h2>Forum Posts</h2>
+        <form action="/search" method="get">
+            <select id="category" name="category">
+                <option value="">Any thing...</option>
+                <option value="GO">Go</option>
+                <option value="HTML">Html</option>
+                <option value="CSS">Css</option>
+                <option value="PHP">Php</option>
+                <option value="PYTHON">Python</option>
+                <option value="C">C</option>
+                <option value="C++">C++</option>
+                <option value="C#">C#</option>
+                <option value="JS">Java Script</option>
+                <option value="ASSEMBLY">Assembly</option>
+                <option value="REACT">React</option>
+                <option value="FLUTTER">Flutter</option>
+                <option value="RUST">Rust</option>
+              </select>
+              <input type="search" name="search" id="search">
+            <button type="submit">Search</button>
+        </form>
         <hr>
         {{range .}}
         <div class="post">

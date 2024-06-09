@@ -8,8 +8,61 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/index/createpost.css">
+    <style>
+        .profile-menu {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: inline-block;
+        }
+
+        .profile-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .profile-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .profile-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .profile-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .profile-menu:hover .profile-content {
+            display: block;
+        }
+    </style>
 </head>
 <body>
+    <div class="profile-menu">
+        <button class="profile-button">Profile</button>
+        <div class="profile-content">
+            <a href="/myposts">Gönderilerim</a>
+            <a href="/likedposts">Beğendiklerim</a>
+            <a href="/mycomments">Yorumlarım</a>
+            <a href="/deleteaccount">Hesabı sil</a>
+            <form action="/logout" method="POST">
+                <button>Logout</button>
+            </form>
+        </div>
+    </div>
     <div class="container">
         <img src="/static/icons/x.svg" class="close-button" onclick="window.location.href='/'" alt="Close">
         <h1>Create a New Post</h1>
@@ -20,10 +73,53 @@
             <label for="photo">Upload Photo:</label>
             <input type="file" id="photo" name="photo">
             <br>
+            <label>Select Categories:</label><br>
+            <div class="category-buttons">
+                <input type="checkbox" id="go" name="go" value="true">
+                <label for="go">Go</label>
+
+                <input type="checkbox" id="html" name="html" value="true">
+                <label for="html">HTML</label>
+
+                <input type="checkbox" id="css" name="css" value="true">
+                <label for="css">CSS</label>
+
+                <input type="checkbox" id="php" name="php" value="true">
+                <label for="php">PHP</label>
+
+                <input type="checkbox" id="python" name="python" value="true">
+                <label for="python">Python</label>
+
+                <input type="checkbox" id="c" name="c" value="true">
+                <label for="c">C</label>
+
+                <input type="checkbox" id="cpp" name="cpp" value="true">
+                <label for="cpp">C++</label>
+
+                <input type="checkbox" id="csharp" name="csharp" value="true">
+                <label for="csharp">C#</label>
+
+                <input type="checkbox" id="js" name="js" value="true">
+                <label for="js">JavaScript</label>
+
+                <input type="checkbox" id="assembly" name="assembly" value="true">
+                <label for="assembly">Assembly</label>
+
+                <input type="checkbox" id="react" name="react" value="true">
+                <label for="react">React</label>
+
+                <input type="checkbox" id="flutter" name="flutter" value="true">
+                <label for="flutter">Flutter</label>
+
+                <input type="checkbox" id="rust" name="rust" value="true">
+                <label for="rust">Rust</label>
+            </div>
+            <br>
             <button type="submit">
                 <img src="/static/icons/send.svg" alt="Send">
             </button>
         </form>
+        
     </div>
 </body>
 </html>

@@ -5,8 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post Page</title>
     <link rel="stylesheet" href="/static/index/postpage.css">
+    <style>
+        .profile-menu {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: inline-block;
+        }
+
+        .profile-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .profile-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .profile-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .profile-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .profile-menu:hover .profile-content {
+            display: block;
+        }
+    </style>
 </head>
 <body>
+    <div class="profile-menu">
+            <button class="profile-button">Profile</button>
+            <div class="profile-content">
+                <a href="/myposts">Gönderilerim</a>
+                <a href="/likedposts">Beğendiklerim</a>
+                <a href="/mycomments">Yorumlarım</a>
+                <a href="/deleteaccount">Hesabı sil</a>
+                <form action="/logout" method="POST">
+                    <button>Logout</button>
+                </form>
+            </div>
+        </div>
     <div class="container">
         <form action="/" method="POST">
             <input id="commentbutton" type="submit" value="Return Main Page">
@@ -71,7 +124,7 @@
                         <div class="replies">
                             {{range .Replies}}
                                 <div class="reply">
-                                    <p>{{.Reply}}</p>
+                                    <p>{{.UserName}}: {{.Reply}}</p>
                                 </div>
                             {{end}}
                         </div>
