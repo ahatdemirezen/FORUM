@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"forum/backend/auth"
 	"forum/backend/controllers/structs"
 	"forum/backend/database"
+	"forum/backend/readenv"
 )
 
 func GetDataForServe(apiURL string) ([]structs.Post, error) {
@@ -413,4 +415,173 @@ func DeleteCommentRequest(apiURL string, commentId string, cookieValue string) e
 	}
 
 	return nil
+}
+
+func GetGoogleAccessToken(code string) (string, error) {
+	values := url.Values{}
+	values.Set("client_id", readenv.GoogleClientID)
+	values.Set("client_secret", readenv.GoogleClientSecret)
+	values.Set("code", code)
+	values.Set("redirect_uri", "http://localhost:8080/google/callback")
+	values.Set("grant_type", "authorization_code")
+
+	resp, err := http.Post("https://oauth2.googleapis.com/token", "application/x-www-form-urlencoded", strings.NewReader(values.Encode()))
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	var result map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return "", err
+	}
+
+	return result["access_token"].(string), nil
+}
+
+type GoogleUser struct {
+	Email string `json:"email"`
+	Name  string `json:"name"`
+	ID    string `json:"id"`
+}
+
+func GetGoogleUser(token string) (GoogleUser, error) {
+	var user GoogleUser
+
+	req, err := http.NewRequest("GET", "https://www.googleapis.com/oauth2/v2/userinfo", nil)
+	if err != nil {
+		return user, err
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return user, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return user, fmt.Errorf("failed to get user info: %s", resp.Status)
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&user)
+	return user, err
+}
+
+func GetFacebookAccessToken(code string) (string, error) {
+	values := url.Values{}
+	values.Set("client_id", readenv.FacebookClientID)
+	values.Set("client_secret", readenv.FacebookClientSecret)
+	values.Set("code", code)
+	values.Set("redirect_uri", "http://localhost:8080/facebook/callback")
+
+	resp, err := http.PostForm("https://graph.facebook.com/v10.0/oauth/access_token", values)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	var result map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		return "", err
+	}
+
+	token, ok := result["access_token"].(string)
+	if !ok {
+		return "", fmt.Errorf("no access token found in response")
+	}
+
+	return token, nil
+}
+
+type FacebookUser struct {
+	Email string `json:"email"`
+	Name  string `json:"name"`
+	ID    string `json:"id"`
+}
+
+func GetFacebookUser(token string) (FacebookUser, error) {
+	var user FacebookUser
+
+	req, err := http.NewRequest("GET", "https://graph.facebook.com/me?fields=id,name,email", nil)
+	if err != nil {
+		return user, err
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return user, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return user, fmt.Errorf("failed to get user info: %s", resp.Status)
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&user)
+	return user, err
+}
+
+func GetGithubAccessToken(code string) (string, error) {
+	values := url.Values{}
+	values.Set("client_id", readenv.GithubClientID)
+	values.Set("client_secret", readenv.GithubClientSecret)
+	values.Set("code", code)
+	values.Set("redirect_uri", "http://localhost:8080/github/callback")
+
+	resp, err := http.Post("https://github.com/login/oauth/access_token", "application/x-www-form-urlencoded", strings.NewReader(values.Encode()))
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	// Parse response
+	query, err := url.ParseQuery(string(body))
+	if err != nil {
+		return "", err
+	}
+
+	return query.Get("access_token"), nil
+}
+
+type GitHubUser struct {
+	Login string `json:"login"`
+	Email string `json:"email"`
+	Name  string `json:"name"`
+	ID    int    `json:"id"`
+}
+
+// getGithubUser fetches the GitHub user information using the provided token
+func GetGithubUser(token string) (GitHubUser, error) {
+	var user GitHubUser
+
+	req, err := http.NewRequest("GET", "https://api.github.com/user", nil)
+	if err != nil {
+		return user, err
+	}
+	req.Header.Set("Authorization", "token "+token)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return user, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return user, fmt.Errorf("failed to get user info: %s", resp.Status)
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&user)
+	return user, err
 }

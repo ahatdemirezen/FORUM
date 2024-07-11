@@ -19,6 +19,9 @@ import (
 	"forum/backend/controllers/register"
 	downvote "forum/backend/controllers/votes/downVote"
 	upvote "forum/backend/controllers/votes/upVote"
+	"forum/backend/facebooklogin"
+	"forum/backend/githublogin"
+	"forum/backend/googlelogin"
 	createpostpage "forum/frontend/pages/createPostPage"
 	deleteaccountpage "forum/frontend/pages/deleteAccountPage"
 	loginpage "forum/frontend/pages/loginPage"
@@ -54,6 +57,17 @@ func ImportHandlers() {
 	http.HandleFunc("/", mainpage.MainPage)
 	http.HandleFunc("/register", registerpage.RegisterPage)
 	http.HandleFunc("/login", loginpage.LoginPage)
+	http.HandleFunc("/github/login", githublogin.GithubLoginHandler)
+	http.HandleFunc("/github/register", githublogin.GithubRegisterHandler)
+	http.HandleFunc("/github/callback", githublogin.GithubCallbackHandler)
+	http.HandleFunc("/google/login", googlelogin.GoogleLoginHandler)
+	http.HandleFunc("/google/register", googlelogin.GoogleRegisterHandler)
+
+	http.HandleFunc("/google/callback", googlelogin.GoogleCallbackHandler)
+
+	http.HandleFunc("/facebook/login", facebooklogin.FacebookLoginHandler)
+	http.HandleFunc("/facebook/register", facebooklogin.FacebookRegisterHandler)
+	http.HandleFunc("/facebook/callback", facebooklogin.FacebookCallbackHandler)
 	http.HandleFunc("/createpost", createpostpage.CreatePostPage)
 	http.HandleFunc("/post", postpage.PostPage)
 	http.HandleFunc("/createcomment", postpage.PostPageCreateComment)

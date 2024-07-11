@@ -1,7 +1,6 @@
 package logout
 
 import (
-	"fmt"
 	"net/http"
 
 	"forum/backend/auth"
@@ -34,7 +33,5 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	auth.RemoveCookie(w, r, cookie.Name)
-
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "User successfully logged out")
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
