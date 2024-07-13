@@ -2,10 +2,9 @@ package getallposts
 
 import (
 	"encoding/json"
-	"net/http"
-
 	"forum/backend/controllers/structs"
 	"forum/backend/database"
+	"net/http"
 )
 
 func GetAllPosts(w http.ResponseWriter, r *http.Request) {

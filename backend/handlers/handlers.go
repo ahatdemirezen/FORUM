@@ -80,6 +80,7 @@ func ImportHandlers() {
 	http.HandleFunc("/deletecomment", mycommentspage.DeleteMyComment)
 	http.HandleFunc("/myvotedposts", myvotedpostspage.MyVotedPostsPage)
 	http.HandleFunc("/search", searchedpostspage.SearchedPostsPage)
+	http.Handle("/uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads"))))
 
 	fs := http.FileServer(http.Dir("./frontend"))
 	http.Handle("/frontend/", http.StripPrefix("/frontend/", fs))

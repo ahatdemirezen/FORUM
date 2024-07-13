@@ -2,7 +2,11 @@ package createpost
 
 import (
 	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"forum/backend/auth"
 	"forum/backend/database"
@@ -14,12 +18,42 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err := r.ParseMultipartForm(20 << 20)
+	if err != nil {
+		http.Error(w, "ERROR: File size exceeds the 20MB limit", http.StatusRequestEntityTooLarge)
+		return
+	}
+
 	title := r.FormValue("title")
 	content := r.FormValue("content")
 
 	if !IsForumPostValid(title, content) {
-		http.Error(w, "ERROR: Content or title cannot empty", http.StatusBadRequest)
+		http.Error(w, "ERROR: Content or title cannot be empty", http.StatusBadRequest)
 		return
+	}
+
+	var PhotoPath string
+	file, handler, err := r.FormFile("photo")
+	if err == nil {
+		defer file.Close()
+
+		// Dosya türünü kontrol et
+		fileExt := strings.ToLower(filepath.Ext(handler.Filename)) // filepath.Ext function returns the extension of a file path
+		// multipart.FileHeader filename holds the size and header and these are assigned to the handler, then the filename is retrieved from handlerfilename
+		if fileExt != ".jpg" && fileExt != ".jpeg" && fileExt != ".png" && fileExt != ".gif" {
+			http.Error(w, "ERROR: Unsupported file type. Only JPEG, PNG, and GIF are allowed.", http.StatusBadRequest)
+			return
+		}
+
+		// Fotoğrafı uploads dizinine kaydet
+		tempFile, err := os.Create(fmt.Sprintf("./uploads/%s", handler.Filename))
+		if err != nil {
+			http.Error(w, "Unable to save file", http.StatusInternalServerError)
+			return
+		}
+		defer tempFile.Close()
+		io.Copy(tempFile, file)
+		PhotoPath = fmt.Sprintf("/uploads/%s", handler.Filename)
 	}
 
 	db, errDb := database.OpenDb(w)
@@ -28,16 +62,15 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer db.Close()
-
 	authenticated, userId, userName := auth.IsAuthenticated(r, db)
 	if !authenticated {
 		http.Error(w, "ERROR: You are not authorized to create post", http.StatusUnauthorized)
 		return
 	}
 
-	result, errEx := db.Exec(`INSERT INTO POSTS (UserID, UserName, Title, Content) VALUES (?, ?, ?, ?)`, userId, userName, title, content)
+	result, errEx := db.Exec(`INSERT INTO POSTS (UserID, UserName, Title, Content, PhotoPath) VALUES (?, ?, ?, ?, ?)`, userId, userName, title, content, PhotoPath)
 	if errEx != nil {
-		http.Error(w, "ERROR: Post did not added into the database", http.StatusBadRequest)
+		http.Error(w, "ERROR: Post did not add to the database", http.StatusBadRequest)
 		return
 	}
 

@@ -7,6 +7,7 @@ type Post struct {
 	Title     string `json:"title"`
 	Content   string `json:"content"`
 	LikeCount int    `json:"likecount"`
+	PhotoPath string `json:"photopath"`
 }
 
 type Comment struct {

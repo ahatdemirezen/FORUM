@@ -42,6 +42,7 @@ func CreateDatabaseIfNotExists() {
 		"Content" TEXT,
 		"LikeCount" INTEGER DEFAULT 0,
 		"PostDate" TEXT NOT NULL DEFAULT (datetime('now')),
+	    "PhotoPath" TEXT,
 		PRIMARY KEY("ID" AUTOINCREMENT)
     );
     CREATE TABLE IF NOT EXISTS COMMENTS (

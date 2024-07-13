@@ -21,6 +21,10 @@
         <h1>{{.Post.Title}}</h1>
         <p>{{.Post.Content}}</p>
 
+        {{if .Post.PhotoPath}}
+        <img src="{{.Post.PhotoPath}}" alt="Post Photo">
+        {{end}}
+        
         <div class="vote-section">
             <form action="/upvote" method="post" class="vote-form">
                 <input type="hidden" name="id" value="{{.Post.ID}}">

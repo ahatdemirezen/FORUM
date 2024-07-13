@@ -32,7 +32,7 @@ func GetPostAndComments(w http.ResponseWriter, r *http.Request) {
 
 	var post structs.Post
 
-	err = db.QueryRow("SELECT ID, UserID, UserName, Title, Content, LikeCount FROM POSTS WHERE ID = ?", postIdInt).Scan(&post.ID, &post.UserID, &post.UserName, &post.Title, &post.Content, &post.LikeCount)
+	err = db.QueryRow("SELECT ID, UserID, UserName, Title, Content, LikeCount, PhotoPath FROM POSTS WHERE ID = ?", postIdInt).Scan(&post.ID, &post.UserID, &post.UserName, &post.Title, &post.Content, &post.LikeCount, &post.PhotoPath)
 	if err != nil {
 		http.Error(w, "ERROR: Query execution failed", http.StatusInternalServerError)
 		return
