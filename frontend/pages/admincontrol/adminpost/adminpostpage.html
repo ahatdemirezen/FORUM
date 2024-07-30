@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gönderi Yönetimi</title>
+</head>
+<body>
+    <h1>Gönderi Yönetimi</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>User ID</th>
+            <th>Kullanıcı Adı</th>
+            <th>Başlık</th>
+            <th>İçerik</th>
+            <th>Beğeni Sayısı</th>
+            <th>İşlemler</th>
+        </tr>
+        {{range .Posts}}
+        <tr>
+            <td>{{.ID}}</td>
+            <td>{{.UserID}}</td>
+            <td>{{.UserName}}</td>
+            <td>{{.Title}}</td>
+            <td>{{.Content}}</td>
+            <td>{{.LikeCount}}</td>
+            <td>
+                <form method="post" action="/admin/deletepost" style="display:inline;">
+                    <input type="hidden" name="post_id" value="{{.ID}}">
+                    <button type="submit" onclick="return confirm('Bu gönderiyi silmek istediğinizden emin misiniz?');">Sil</button>
+                </form>
+            </td>
+        </tr>
+        {{end}}
+    </table>
+    <a href="/admin">Geri Dön</a>
+</body>
+</html>

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"forum/backend/auth"
 	"forum/backend/database"
 
 	"golang.org/x/crypto/bcrypt"
@@ -43,6 +44,20 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "ERROR: Invalid password", http.StatusBadRequest)
 		return
 	}
+
+	sessionToken, errToken := auth.CreateSessionToken()
+	if errToken != nil {
+		http.Error(w, "ERROR: Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	err = auth.SetTokenInDatabase(w, db, sessionToken, userID)
+	if err != nil {
+		http.Error(w, "ERROR: Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	auth.SetCookie(w, sessionToken)
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "User successfully logged in")

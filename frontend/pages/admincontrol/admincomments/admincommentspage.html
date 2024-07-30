@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Yorum Yönetimi</title>
+</head>
+<body>
+    <h1>Yorum Yönetimi</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Gönderi ID</th>
+            <th>User ID</th>
+            <th>Kullanıcı Adı</th>
+            <th>Yorum</th>
+            <th>Beğeni Sayısı</th>
+            <th>İşlemler</th>
+        </tr>
+        {{range .}}
+        <tr>
+            <td>{{.ID}}</td>
+            <td>{{.PostId}}</td>
+            <td>{{.UserId}}</td>
+            <td>{{.UserName}}</td>
+            <td>{{.Comment}}</td>
+            <td>{{.LikeCount}}</td>
+            <td>
+                <form method="post" action="/admin/deletecomment" style="display:inline;">
+                    <input type="hidden" name="comment_id" value="{{.ID}}">
+                    <button type="submit" onclick="return confirm('Bu yorumu silmek istediğinizden emin misiniz?');">Sil</button>
+                </form>
+            </td>
+        </tr>
+        {{end}}
+    </table>
+    <a href="/admin">Geri Dön</a>
+</body>
+</html>

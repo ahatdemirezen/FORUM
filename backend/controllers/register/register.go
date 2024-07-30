@@ -49,7 +49,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "ERROR: Username already taken", http.StatusBadRequest)
 		return
 	}
-	_, err := db.Exec("INSERT INTO USERS (Email, UserName, Password, Role) VALUES (?, ?, ?, ?)", email, username, hashedPasswd, "User")
+	_, err := db.Exec("INSERT INTO USERS (Email, UserName, Password, Role) VALUES (?, ?, ?, ?)", email, username, hashedPasswd, "user")
 	if err != nil {
 		http.Error(w, "ERROR: Bad Request", http.StatusBadRequest)
 		return

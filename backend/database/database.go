@@ -31,9 +31,17 @@ func CreateDatabaseIfNotExists() {
         Email TEXT NOT NULL UNIQUE,
         UserName TEXT NOT NULL,
         Password TEXT NOT NULL,
-		Role TEXT,
+		Role TEXT NOT NULL CHECK (Role IN ('user', 'moderator', 'admin')),
 		session_token TEXT
+        
     );
+	CREATE TABLE IF NOT EXISTS ModeratorRequests (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    UserName TEXT NOT NULL,
+    Email TEXT NOT NULL,
+    Explanation TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+   );
     CREATE TABLE IF NOT EXISTS POSTS (
 		"ID" INTEGER UNIQUE,
 		"UserID" INTEGER,

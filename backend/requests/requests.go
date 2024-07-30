@@ -32,6 +32,189 @@ func GetDataForServe(apiURL string) ([]structs.Post, error) {
 	return posts, nil
 }
 
+func GetDataForUsersInAdminRole(apiURL string) ([]structs.User, error) {
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return nil, err
+	}
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error sending request:", err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var users []structs.User
+	if err := json.NewDecoder(resp.Body).Decode(&users); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
+func GetNotificationsForAdmin(apiURL string) ([]structs.AdminNotifications, error) {
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return nil, err
+	}
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error sending request:", err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var adminnotifications []structs.AdminNotifications
+	if err := json.NewDecoder(resp.Body).Decode(&adminnotifications); err != nil {
+		return nil, err
+	}
+
+	return adminnotifications, nil
+}
+
+func GetDataForCommentsInAdminRole(apiURL string) ([]structs.Comment, error) {
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return nil, err
+	}
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error sending request:", err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var comment []structs.Comment
+	if err := json.NewDecoder(resp.Body).Decode(&comment); err != nil {
+		return nil, err
+	}
+
+	return comment, nil
+}
+
+func GetDataForPostInAdminRole(apiURL string) (structs.PageData, error) {
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return structs.PageData{}, err
+	}
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error sending request:", err)
+		return structs.PageData{}, err
+	}
+	defer resp.Body.Close()
+
+	var data structs.PageData
+	err = json.NewDecoder(resp.Body).Decode(&data.Posts)
+	if err != nil {
+		return structs.PageData{}, err
+	}
+
+	return data, nil
+}
+
+func DeletePostForAdmin(apiURL string, PostID string) error {
+	formData := url.Values{}
+	formData.Set("post_id", PostID)
+
+	encodedFormData := formData.Encode()
+
+	req, err := http.NewRequest("POST", apiURL, strings.NewReader(encodedFormData))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		bodyString := string(bodyBytes)
+		return fmt.Errorf(bodyString)
+	}
+
+	return nil
+}
+
+func DeleteCommentsForAdmin(apiURL string, commentID string) error {
+	formData := url.Values{}
+	formData.Set("comment_id", commentID)
+
+	encodedFormData := formData.Encode()
+
+	req, err := http.NewRequest("POST", apiURL, strings.NewReader(encodedFormData))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		bodyString := string(bodyBytes)
+		return fmt.Errorf(bodyString)
+	}
+
+	return nil
+}
+
+func GetModeratorFromAdmins(apiURL string, userID string, action string) error {
+	formData := url.Values{}
+	formData.Set("user_id", userID)
+	formData.Set("action", action)
+
+	encodedFormData := formData.Encode() // Encode = Convert form data or URL query parameters into a URL encoded string
+
+	req, err := http.NewRequest("POST", apiURL, strings.NewReader(encodedFormData))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		bodyString := string(bodyBytes)
+		return fmt.Errorf(bodyString)
+	}
+
+	return nil
+}
+
 func GetDataForServeWithReq(apiURL string, cookieValue string) ([]structs.Post, error) {
 	req, err := http.NewRequest("GET", apiURL, nil)
 	if err != nil {

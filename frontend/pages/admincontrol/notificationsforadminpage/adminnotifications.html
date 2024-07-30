@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Notifications</title>
+    <link rel="stylesheet" href="/frontend/static/styles/notification.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Moderator Requests</h1>
+    </div>
+
+    <div class="container">
+        {{if .}}
+        <table>
+            <thead>
+                <tr>
+                    <th>Kullanıcı Adı</th>
+                    <th>E-posta</th>
+                    <th>Açıklama</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .}}
+                <tr>
+                    <td>{{.UserName}}</td>
+                    <td>{{.Email}}</td>
+                    <td>{{.Explanation}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{else}}
+        <p>No requests found.</p>
+        {{end}}
+    </div>
+</body>
+</html>

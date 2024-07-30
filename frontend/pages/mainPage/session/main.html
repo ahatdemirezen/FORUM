@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/frontend/static/styles/main.css">
+    <link rel="stylesheet" href="/frontend/static/styles/contact.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 <body>
     <div class="header">
@@ -80,5 +82,39 @@
         </div>
         {{end}}
     </div>
+
+    <!-- İletişim Formu Simgesi -->
+    <div id="contact-icon" onclick="toggleForm()">
+        <i class="fa-solid fa-square-envelope fa-3x"></i>
+    </div>
+
+    <!-- İletişim Formu -->
+    <div id="contact-form" class="hidden">
+        <form action="/api/mod-request" method="post">
+            <h2>Moderatör Olma Talebi</h2>
+            <label for="username">Kullanıcı Adı:</label>
+            <input type="text" id="username" name="username" required>
+            
+            <label for="email">E-posta:</label>
+            <input type="email" id="email" name="email" required>
+            
+            <label for="explanation">Neden Moderatör Olmak İstediğinizi Açıklayın:</label>
+            <textarea id="explanation" name="explanation" rows="4" required></textarea>
+            
+            <button type="submit">Talebi Gönder</button>
+            <button type="button" onclick="toggleForm()">Kapat</button>
+        </form>
+    </div>
+
+    <script>
+        function toggleForm() {
+            var form = document.getElementById('contact-form');
+            if (form.classList.contains('hidden')) {
+                form.classList.remove('hidden');
+            } else {
+                form.classList.add('hidden');
+            }
+        }
+    </script>
 </body>
 </html>

@@ -1,0 +1,41 @@
+<!-- templates/admin_users.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kullanıcı Yönetimi</title>
+</head>
+<body>
+    <h1>Kullanıcı Yönetimi</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Email</th>
+            <th>Kullanıcı Adı</th>
+            <th>Rol</th>
+            <th>İşlemler</th>
+        </tr>
+        {{range .}}
+        <tr>
+            <td>{{.ID}}</td>
+            <td>{{.Email}}</td>
+            <td>{{.UserName}}</td>
+            <td>{{.Role}}</td>
+            <td>
+                <form method="post" action="/admin/moderators">
+                    <input type="hidden" name="user_id" value="{{.ID}}">
+                    {{if eq .Role "user"}}
+                    <input type="hidden" name="action" value="promote">
+                    <button type="submit">Moderatör Yap</button>
+                    {{else if eq .Role "moderator"}}
+                    <input type="hidden" name="action" value="demote">
+                    <button type="submit">Moderatörlükten Çıkar</button>
+                    {{end}}
+                </form>
+            </td>
+        </tr>
+        {{end}}
+    </table>
+    <a href="/admin">Geri Dön</a>
+</body>
+</html>
